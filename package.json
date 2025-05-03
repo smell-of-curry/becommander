@@ -1,0 +1,25 @@
+{
+  "name": "becommander",
+  "version": "1.0.0",
+  "description": "A Minecraft Bedrock Chat Command Framework",
+  "license": "ISC",
+  "author": "Smell of curry",
+  "type": "commonjs",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smell-of-curry/becommander"
+  },
+  "scripts": {
+    "build": "ts-node --project tsconfig.json ./build.ts",
+    "dev": "ts-node --project tsconfig.json build.ts dev"
+  },
+  "dependencies": {
+    "@minecraft/server": "2.0.0-beta.1.21.70-stable"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "esbuild": "^0.15.18",
+    "fs-extra": "^10.1.0"
+  }
+}
