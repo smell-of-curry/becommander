@@ -97,7 +97,7 @@ export class Command<Callback extends Function = DefaultCommandCallback> {
    * @param name name this argument should have
    * @returns new branch to this command
    */
-  array<T extends ReadonlyArray<string>>(
+  array<const T extends Array<string>>(
     name: string,
     types: T
   ): ArgReturn<Callback, T[number]> {

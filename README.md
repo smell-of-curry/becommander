@@ -115,7 +115,7 @@ new Command({
   description: "Change a player's gamemode",
   aliases: ["gm"],
 })
-  .array("mode", ["survival", "creative", "adventure", "spectator"] as const)
+  .array("mode", ["survival", "creative", "adventure", "spectator"])
   .executes((ctx, mode) => {
     // Change gamemode implementation
   })
