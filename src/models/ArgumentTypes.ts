@@ -203,7 +203,7 @@ export class TargetArgumentType implements IArgumentType {
   }
 }
 
-export class ArrayArgumentType<T extends ReadonlyArray<string>>
+export class ArrayArgumentType<const T extends Array<string>>
   implements IArgumentType
 {
   type!: T[number];
