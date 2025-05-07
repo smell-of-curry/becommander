@@ -1,8 +1,8 @@
 import { Player } from "@minecraft/server";
+import { COMMANDS } from "../commands";
 import { PREFIX } from "../config/commands";
 import { IArgumentReturnData, IArgumentType } from "../models/ArgumentTypes";
 import { Command } from "../models/Command";
-import { COMMANDS } from "../index";
 
 /**
  * An argument type that matches a command name

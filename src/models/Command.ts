@@ -9,7 +9,7 @@ import {
   BooleanArgumentType,
   PlayerArgumentType,
 } from "./ArgumentTypes";
-import { COMMANDS } from "../index";
+import { COMMANDS } from "../commands";
 import type {
   AppendArgument,
   ICommandData,

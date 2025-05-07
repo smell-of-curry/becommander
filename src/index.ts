@@ -1,4 +1,5 @@
 import { Player, system, world } from "@minecraft/server";
+import { COMMANDS } from "./commands";
 import { PREFIX } from "./config/commands";
 import type { Command } from "./models/Command";
 import {
@@ -9,10 +10,8 @@ import {
   sendCallback,
 } from "./utils";
 
-/**
- * An array of all active commands
- */
-export const COMMANDS: Command<any>[] = [];
+import type { Command } from "./models/Command";
+import type { Player} from "@minecraft/server";
 
 // Load the test commands, after the COMMANDS array is initialized
 import("./tests/import");
