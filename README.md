@@ -13,19 +13,21 @@ A powerful and flexible command framework for Minecraft Bedrock Edition scriptin
 - ⚙️ Automatic argument parsing and validation
 - 🎯 Support for Minecraft's native locations, player selectors, and more
 
-## 📥 Installation (through Rubedo)
+## 📥 Installation (through [Rubedo](https://github.com/smell-of-curry/rubedo))
 
 1. Add to your Rubedo Dependencies:
+
 ```json
 "rubedo_dependencies": [
-    {
-      "module_name": "smell-of-curry/becommander",
-      "version": "latest"
-    }
+  {
+    "module_name": "smell-of-curry/becommander",
+    "version": "latest"
+  }
 ],
 ```
 
 2. Run `rubedo install`
+3. Use the base `index.ts`, or create your own
 
 ## 🚀 Quick Start
 
@@ -49,12 +51,12 @@ helloCommand.executes((ctx) => {
 // Add an optional player argument: `-hello "Smell of curry"`
 // The Player will be looked for on the world, and a Player type
 // Will be passed to `target` in the callback.
-helloCommand
-  .player("target")
-  .executes((ctx, target) => {
-    ctx.sender.sendMessage("Hello, " + target.name + "!");
-  });
+helloCommand.player("target").executes((ctx, target) => {
+  ctx.sender.sendMessage("Hello, " + target.name + "!");
+});
 ```
+
+![-help teleport callback syntax](./images/helpTeleportCallback.png "Teleport syntax")
 
 ## ⚙️ Configuration
 
@@ -70,17 +72,17 @@ export const PREFIX = "-"; // Change to your preferred prefix
 
 BECommander provides a variety of built-in argument types for command parameters:
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `string` | Any text string | `-command "Hello World"` |
-| `int` | Integer number (optional range) | `-command 42` |
-| `float` | Floating-point number | `-command 3.14` |
-| `boolean` | True or false | `-command true` |
-| `player` | Valid player name | `-command Steve` |
-| `location` | Minecraft coordinates | `-command ~0 ~1 ~0` |
-| `array` | One from a predefined set | `-command option1` |
-| `target` | Minecraft target selector | `-command @a` |
-| `duration` | Time value | `-command 10s` |
+| Type       | Description                     | Example                  |
+| ---------- | ------------------------------- | ------------------------ |
+| `string`   | Any text string                 | `-command "Hello World"` |
+| `int`      | Integer number (optional range) | `-command 42`            |
+| `float`    | Floating-point number           | `-command 3.14`          |
+| `boolean`  | True or false                   | `-command true`          |
+| `player`   | Valid player name               | `-command Steve`         |
+| `location` | Minecraft coordinates           | `-command ~0 ~1 ~0`      |
+| `array`    | One from a predefined set       | `-command option1`       |
+| `target`   | Minecraft target selector       | `-command @a`            |
+| `duration` | Time value                      | `-command 10s`           |
 
 ### 🔧 Using Argument Types
 
@@ -115,7 +117,7 @@ new Command({
   description: "Change a player's gamemode",
   aliases: ["gm"],
 })
-  .array("mode", ["survival", "creative", "adventure", "spectator"])
+  .array("mode", ["survival", "creative", "adventure", "spectator"] as const)
   .executes((ctx, mode) => {
     // Change gamemode implementation
   })
@@ -150,11 +152,9 @@ myCommand.executes((ctx) => {
 ### ➕ Add arguments
 
 ```typescript
-myCommand
-  .string("message")
-  .executes((ctx, message) => {
-    ctx.sender.sendMessage(`You said: ${message}`);
-  });
+myCommand.string("message").executes((ctx, message) => {
+  ctx.sender.sendMessage(`You said: ${message}`);
+});
 ```
 
 ### 🔄 Add subcommands
@@ -180,21 +180,21 @@ import { IArgumentType, IArgumentReturnData } from "./models/ArgumentTypes";
 export class CustomArgumentType implements IArgumentType {
   type!: string; // The return type
   typeName = "custom"; // Name for help text
-  
+
   matches(value: string): IArgumentReturnData<string> {
     // Your validation logic here
     const isValid = true; // Replace with your validation
-    
+
     return {
       success: isValid,
       value: value, // The parsed value to pass to the command
     };
   }
-  
+
   fail(value: string): string {
     return `"${value}" is not a valid custom argument!`;
   }
-  
+
   constructor(public name: string = "custom") {
     this.name = name;
   }
@@ -238,4 +238,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
