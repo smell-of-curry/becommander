@@ -1,4 +1,4 @@
-import { Player } from "@minecraft/server";
+import type { Player } from "@minecraft/server";
 
 export class CommandCallback {
   /**

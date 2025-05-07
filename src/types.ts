@@ -1,6 +1,6 @@
-import type { Player } from "@minecraft/server";
-import type { Command } from "./models/Command";
 import type { CommandCallback } from "./models/Callback";
+import type { Command } from "./models/Command";
+import type { Player } from "@minecraft/server";
 
 export interface ICommandData {
   /**
@@ -59,7 +59,7 @@ export type AppendArgument<Base, Next> = Base extends (
   ? (ctx: X, ...args: [...E, Next]) => R
   : never;
 
-export type ArgReturn<Callback extends any, type extends any> = Command<
+export type ArgReturn<Callback, type> = Command<
   AppendArgument<Callback, type>
 >;
 
@@ -82,4 +82,4 @@ export type Range<F extends number, T extends number> =
 
 export type DefaultCommandCallback = (
   ctx: CommandCallback
-) => void | "fail" | Promise<void | "fail">;
+) => "fail" | Promise<"fail" | unknown> | unknown;

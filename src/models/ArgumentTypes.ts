@@ -1,5 +1,7 @@
-import { Player } from "@minecraft/server";
 import { fetchPlayerFromName } from "../utils";
+
+import type { Player } from "@minecraft/server";
+
 
 export interface IArgumentReturnData<T> {
   /**
@@ -74,7 +76,7 @@ export class StringArgumentType implements IArgumentType {
       value: value,
     };
   }
-  fail(_value: string): string {
+  fail(): string {
     return `Value must be of type string!`;
   }
   constructor(public name: string = "string") {
@@ -109,7 +111,7 @@ export class IntegerArgumentType implements IArgumentType {
       value: parseInt(value),
     };
   }
-  fail(_value: string): string {
+  fail(): string {
     return `Value must be valid number!`;
   }
   constructor(public name: string = "integer", range?: [number, number]) {
@@ -127,7 +129,7 @@ export class FloatArgumentType implements IArgumentType {
       value: parseInt(value),
     };
   }
-  fail(_value: string): string {
+  fail(): string {
     return `Value must be valid float!`;
   }
   constructor(public name: string = "float") {
@@ -137,14 +139,14 @@ export class FloatArgumentType implements IArgumentType {
 
 export class LocationArgumentType implements IArgumentType {
   type!: string;
-  typeName = "location";
+  typeName = "x y z";
   matches(value: string): IArgumentReturnData<string> {
     return {
       success: /^([~^]{0,1}(-\d)?(\d*)?(\.(\d+))?)$/.test(value),
       value: value,
     };
   }
-  fail(_value: string): string {
+  fail(): string {
     return `Value needs to be a valid number, value can include: [~,^]`;
   }
   constructor(public name: string = "location") {
@@ -203,7 +205,7 @@ export class TargetArgumentType implements IArgumentType {
   }
 }
 
-export class ArrayArgumentType<const T extends Array<string>>
+export class ArrayArgumentType<T extends readonly string[]>
   implements IArgumentType
 {
   type!: T[number];
@@ -217,7 +219,7 @@ export class ArrayArgumentType<const T extends Array<string>>
   fail(value: string): string {
     return `"${value}" must be one of these values: ${this.types.join(" | ")}`;
   }
-  constructor(public name: string = "array", public types: T) {
+  constructor(public name: string = "array", public types: string[]) {
     this.name = name;
     this.types = types;
 

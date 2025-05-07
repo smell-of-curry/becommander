@@ -1,7 +1,7 @@
-import { Player, system, world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
+
 import { COMMANDS } from "./commands";
 import { PREFIX } from "./config/commands";
-import type { Command } from "./models/Command";
 import {
   commandNotFound,
   commandSyntaxFail,
@@ -16,19 +16,19 @@ import type { Player} from "@minecraft/server";
 // Load the test commands, after the COMMANDS array is initialized
 import("./tests/import");
 
-function executeCommand(command: Command, sender: Player, args: string[]) {
+function executeCommand<T>(command: Command<T>, sender: Player, args: string[]) {
   if (!command.data.requires?.(sender)) return noPerm(sender, command);
   if (command.data.cooldown) {
     // TODO: Implement cooldown with player dynamic properties
   }
-  const verifiedCommands: Command[] = [];
+  const verifiedCommands: Command<unknown>[] = [];
   /**
    * Checks all arguments to test validity
    * @param start start command to look at
    * @param i index of the argument in base command
    * @returns If a augmented failed
    */
-  const getArg = (start: Command<any>, i: number): "fail" | undefined => {
+  const getArg = <U>(start: Command<U>, i: number): "fail" | undefined => {
     if (start.children.length == 0) return undefined;
     const arg = args[i];
     if (!arg && start.callback) return undefined;
@@ -42,7 +42,7 @@ function executeCommand(command: Command, sender: Player, args: string[]) {
     verifiedCommands.push(matchedArg);
     return getArg(matchedArg, i + 1);
   };
-  let v = getArg(command, 0);
+  const v = getArg(command, 0);
   if (v == "fail") return;
   system.run(async () => {
     if (!sender.isValid) return;

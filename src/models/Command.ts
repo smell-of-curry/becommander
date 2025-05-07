@@ -1,7 +1,5 @@
-import { Player, Vector3 } from "@minecraft/server";
 import {
   LiteralArgumentType,
-  IArgumentType,
   LocationArgumentType,
   StringArgumentType,
   IntegerArgumentType,
@@ -10,6 +8,9 @@ import {
   PlayerArgumentType,
 } from "./ArgumentTypes";
 import { COMMANDS } from "../commands";
+
+import type {
+  IArgumentType} from "./ArgumentTypes";
 import type {
   AppendArgument,
   ICommandData,
@@ -17,13 +18,13 @@ import type {
   Range,
   DefaultCommandCallback,
 } from "../types";
-export { ArgumentTypes } from "./ArgumentTypes";
+import type { Player, Vector3 } from "@minecraft/server";
 
-export class Command<Callback extends Function = DefaultCommandCallback> {
+export class Command<Callback = DefaultCommandCallback> {
   /**
    * The Arguments on this command
    */
-  children: Command<any>[];
+  children: Command<unknown>[];
 
   /**
    * Function to run when this command is called
@@ -34,7 +35,7 @@ export class Command<Callback extends Function = DefaultCommandCallback> {
     public data: ICommandData,
     public type: IArgumentType = new LiteralArgumentType(data.name),
     public depth: number = 0,
-    public parent?: Command<any>
+    public parent?: Command<unknown>
   ) {
     if (!data.requires) data.requires = () => true;
     this.data = data;
@@ -97,11 +98,11 @@ export class Command<Callback extends Function = DefaultCommandCallback> {
    * @param name name this argument should have
    * @returns new branch to this command
    */
-  array<const T extends Array<string>>(
+  array<T extends readonly string[]>(
     name: string,
     types: T
   ): ArgReturn<Callback, T[number]> {
-    return this.argument(new ArrayArgumentType(name, types));
+    return this.argument(new ArrayArgumentType(name, [...types]));
   }
 
   /**
@@ -122,9 +123,9 @@ export class Command<Callback extends Function = DefaultCommandCallback> {
     const cmd = this.argument(new LocationArgumentType(name));
     if (!name.endsWith("*")) {
       const newArg = cmd.location(name + "_y*").location(name + "_z*");
-      return newArg as any as ArgReturn<Callback, Vector3>;
+      return newArg as unknown as ArgReturn<Callback, Vector3>;
     }
-    return cmd as any as ArgReturn<Callback, Vector3>;
+    return cmd as unknown as ArgReturn<Callback, Vector3>;
   }
 
   /**

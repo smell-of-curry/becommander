@@ -1,8 +1,9 @@
-import { Player } from "@minecraft/server";
 import { COMMANDS } from "../commands";
 import { PREFIX } from "../config/commands";
-import { IArgumentReturnData, IArgumentType } from "../models/ArgumentTypes";
 import { Command } from "../models/Command";
+
+import type { IArgumentReturnData, IArgumentType } from "../models/ArgumentTypes";
+import type { Player } from "@minecraft/server";
 
 /**
  * An argument type that matches a command name
@@ -12,9 +13,7 @@ export class CommandNameArgumentType implements IArgumentType {
   typeName = "CommandName";
   matches(value: string): IArgumentReturnData<string> {
     return {
-      success: Boolean(
-        COMMANDS.find((c) => c.depth == 0 && c.data.name == value)
-      ),
+      success: Boolean(COMMANDS.find((c) => c.depth == 0 && c.data.name == value)),
       value: value,
     };
   }
@@ -31,12 +30,7 @@ export class CommandNameArgumentType implements IArgumentType {
  * @param args - The arguments to send
  * @param player - The player to send the arguments to
  */
-function sendArguments(
-  baseCommand: Command,
-  command: Command,
-  args: Command[],
-  player: Player
-) {
+function sendArguments<T, U>(baseCommand: Command<T>, command: Command<U>, args: Command<unknown>[], player: Player) {
   if (!command.data.requires?.(player)) return;
   const fullArgs = command.depth == 0 ? args : args.concat(command);
   if (command.callback)
@@ -73,11 +67,11 @@ function sendPageHeader(player: Player, page: number, maxPages: number) {
  * @param player - The player to send the command header to
  * @param command - The command to send the header of
  */
-function sendCommandHeader(player: Player, command: Command) {
+function sendCommandHeader(player: Player, command: Command<unknown>) {
   player.sendMessage(
-    `§e${command.data.name} ${
-      command.data.aliases ? `(also ${command.data.aliases.join(", ")})` : ""
-    }\n${command.data.description}\n§rUsage:`
+    `§e${command.data.name} ${command.data.aliases ? `(also ${command.data.aliases.join(", ")})` : ""}\n${
+      command.data.description
+    }\n§rUsage:`
   );
 }
 
@@ -87,9 +81,7 @@ function sendCommandHeader(player: Player, command: Command) {
  * @returns The maximum number of pages
  */
 function getMaxPages(player: Player): number {
-  const cmds = COMMANDS.filter(
-    (c) => c.depth == 0 && c.data?.requires?.(player)
-  );
+  const cmds = COMMANDS.filter((c) => c.depth == 0 && c.data?.requires?.(player));
   if (cmds.length == 0) return 0;
   return Math.ceil(cmds.length / 5);
 }
@@ -100,9 +92,7 @@ const root = new Command({
   aliases: ["?", "h"],
 }).executes((ctx) => {
   const maxPages = getMaxPages(ctx.sender);
-  const cmds = COMMANDS.filter(
-    (c) => c.depth == 0 && c.data.requires?.(ctx.sender)
-  ).slice(1 * 5 - 5, 1 * 5);
+  const cmds = COMMANDS.filter((c) => c.depth == 0 && c.data.requires?.(ctx.sender)).slice(1 * 5 - 5, 1 * 5);
 
   // Send page details
   sendPageHeader(ctx.sender, 1, maxPages);
@@ -116,20 +106,14 @@ root.int("page").executes((ctx, p) => {
   if (p > maxPages) p = maxPages;
 
   // Get commands for this page
-  const cmds = COMMANDS.filter(
-    (c) => c.depth == 0 && c.data?.requires?.(ctx.sender)
-  ).slice(p * 5 - 5, p * 5);
+  const cmds = COMMANDS.filter((c) => c.depth == 0 && c.data?.requires?.(ctx.sender)).slice(p * 5 - 5, p * 5);
   sendPageHeader(ctx.sender, p, maxPages);
   for (const cmd of cmds) sendArguments(cmd, cmd, [], ctx.sender);
 });
 
-root
-  .argument(new CommandNameArgumentType("command"))
-  .executes((ctx, command) => {
-    const cmd = COMMANDS.filter(
-      (c) => c.depth == 0 && c.data.name == command
-    )[0];
-    if (!cmd) return ctx.sender.sendMessage(`§cCommand not found!`);
-    sendCommandHeader(ctx.sender, cmd);
-    sendArguments(cmd, cmd, [], ctx.sender);
-  });
+root.argument(new CommandNameArgumentType("command")).executes((ctx, command) => {
+  const cmd = COMMANDS.filter((c) => c.depth == 0 && c.data.name == command)[0];
+  if (!cmd) return ctx.sender.sendMessage(`§cCommand not found!`);
+  sendCommandHeader(ctx.sender, cmd);
+  sendArguments(cmd, cmd, [], ctx.sender);
+});

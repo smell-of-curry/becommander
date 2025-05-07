@@ -1,17 +1,17 @@
-import { Entity, Player, Vector3, world } from "@minecraft/server";
+import { world } from "@minecraft/server";
+
 import { PREFIX } from "./config/commands";
 import { LiteralArgumentType, LocationArgumentType } from "./models/ArgumentTypes";
 import { CommandCallback } from "./models/Callback";
+
 import type { Command } from "./models/Command";
+import type { Entity, Player, Vector3 } from "@minecraft/server";
 
 /**
  * Returns a Before chat events augments
  * @example this.getChatAugments(BeforeChatEvent)
  */
-export function getChatAugments(
-  message: string,
-  prefix: string
-): Array<string> {
+export function getChatAugments(message: string, prefix: string): Array<string> {
   const match = message
     .slice(prefix.length)
     .trim()
@@ -42,7 +42,7 @@ export function commandNotFound(player: Player, command: string) {
  * Sends a command not found message to a player
  * @param player player to send message to
  */
-export function noPerm(player: Player, command: Command) {
+export function noPerm<T>(player: Player, command: Command<T>) {
   player.sendMessage(
     command.data.invalidPermission
       ? command.data.invalidPermission
@@ -57,13 +57,7 @@ export function noPerm(player: Player, command: Command) {
  * @param args
  * @param i
  */
-export function commandSyntaxFail(
-  player: Player,
-  baseCommand: Command,
-  command: Command,
-  args: string[],
-  i: number
-) {
+export function commandSyntaxFail<T, U>(player: Player, baseCommand: Command<T>, command: Command<U>, args: string[], i: number) {
   player.sendMessage({
     rawtext: [
       {
@@ -81,18 +75,14 @@ export function commandSyntaxFail(
   });
   if (command.children.length > 1 || !args[i]) {
     // this type could be many things
-    const types = command.children.map((c) =>
-      c.type instanceof LiteralArgumentType ? c.type.name : c.type.typeName
-    );
+    const types = command.children.map((c) => (c.type instanceof LiteralArgumentType ? c.type.name : c.type.typeName));
     player.sendMessage(
       `§c"${args[i] ?? "undefined"}" is not valid! Argument "${
         [...new Set(command.children.map((c) => c.type.name))][0]
       }" can be typeof: "${types.join('", "')}"`
     );
   } else {
-    player.sendMessage(
-      `§c${command.children[0]?.type.fail(args[i] ?? "undefined")}`
-    );
+    player.sendMessage(`§c${command.children[0]?.type.fail(args[i] ?? "undefined")}`);
   }
 }
 
@@ -100,10 +90,7 @@ export function commandSyntaxFail(
  * Returns a location of the inputted argument
  * @example parseLocationArgs(["~1", "3", "^7"], { location: [1,2,3] , viewVector: [1,2,3] })
  */
-export function parseLocationArgs(
-  [x, y, z]: [x: string, y: string, z: string],
-  entity: Entity
-): Vector3 | null {
+export function parseLocationArgs([x, y, z]: [x: string, y: string, z: string], entity: Entity): Vector3 | null {
   if (!entity.isValid) return null;
   if (!x || !y || !x) return null;
   const viewDirection = entity.getViewDirection();
@@ -137,18 +124,16 @@ export function stringifyError(
   space?: Parameters<typeof JSON.stringify>[2]
 ) {
   try {
-    var plainObject = {};
+    const plainObject = {};
     Object.getOwnPropertyNames(err).forEach(function (key) {
       plainObject[key] = err[key as keyof Error];
     });
     return JSON.stringify(plainObject, replacer, space);
   } catch (error) {
-    console.error(
-      `Failed to stringify error: ${error}, typeof: ${typeof err}, ${err}`
-    );
+    console.error(`Failed to stringify error: ${error}, typeof: ${typeof err}, ${err}`);
     try {
       return JSON.stringify(err);
-    } catch (error) {
+    } catch {
       return `${err}`;
     }
   }
@@ -159,44 +144,29 @@ export function stringifyError(
  * @param cmdArgs the args that the command used
  * @param args args to use
  */
-export async function sendCallback(
-  cmdArgs: string[],
-  args: Command<any>[],
-  sender: Player,
-  baseCommand: Command<any>
-) {
+export async function sendCallback<T>(cmdArgs: string[], args: Command<unknown>[], sender: Player, baseCommand: Command<T>) {
   const lastArg = args[args.length - 1] ?? baseCommand;
-  const argsToReturn: any[] = [];
+  const argsToReturn: unknown[] = [];
   for (const [i, arg] of args.entries()) {
     if (arg.type.name.endsWith("*")) continue;
     if (arg.type instanceof LocationArgumentType) {
-      argsToReturn.push(
-        parseLocationArgs(
-          [cmdArgs[i] ?? "", cmdArgs[i + 1] ?? "", cmdArgs[i + 2] ?? ""],
-          sender
-        )
-      );
+      argsToReturn.push(parseLocationArgs([cmdArgs[i] ?? "", cmdArgs[i + 1] ?? "", cmdArgs[i + 2] ?? ""], sender));
       continue;
     }
     if (arg.type instanceof LiteralArgumentType) continue;
     argsToReturn.push(arg.type.matches(cmdArgs[i] ?? "").value ?? cmdArgs[i]);
   }
   try {
-    const res = await lastArg.callback(
-      new CommandCallback(sender),
-      ...argsToReturn
-    );
-    if (res == "fail") return;
+    if (typeof lastArg.callback === 'function') {
+      const res = await lastArg.callback(new CommandCallback(sender), ...argsToReturn);
+      if (res == "fail") return;
+    }
     if (baseCommand.data.cooldown) {
       // TODO: Implement cooldown with player dynamic properties
     }
   } catch (error) {
     console.error(error);
-    sender.sendMessage(
-      `§cAn error occurred while executing this command, ${stringifyError(
-        error as Error
-      )}`
-    );
+    sender.sendMessage(`§cAn error occurred while executing this command, ${stringifyError(error as Error)}`);
   }
 }
 
