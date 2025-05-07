@@ -36,11 +36,8 @@ function sendArguments<T, U>(baseCommand: Command<T>, command: Command<U>, args:
   if (command.callback)
     player.sendMessage(
       `${PREFIX}${baseCommand.data.name} ${fullArgs
-        .map((a) =>
-          a.type.typeName == "literal"
-            ? a.data.name
-            : `<${a.type.name}: ${a.type.typeName}>`
-        )
+        .filter((a) => !a.type.name.match(/_[yxz]\*/))
+        .map((a) => (a.type.typeName == "literal" ? a.data.name : `<${a.type.name}: ${a.type.typeName}>`))
         .filter((a) => a)
         .join(" ")}`
     );
