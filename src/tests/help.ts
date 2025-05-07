@@ -54,9 +54,7 @@ function sendArguments<T, U>(baseCommand: Command<T>, command: Command<U>, args:
  * @param maxPages - The maximum number of pages
  */
 function sendPageHeader(player: Player, page: number, maxPages: number) {
-  player.sendMessage(
-    `§2--- Showing help page ${page} of ${maxPages} (${PREFIX}help <page: int>) ---`
-  );
+  player.sendMessage(`§2--- Showing help page ${page} of ${maxPages} (${PREFIX}help <page: int>) ---`);
 }
 
 /**

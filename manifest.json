@@ -3,16 +3,16 @@
   "header": {
     "name": "pack.name",
     "description": "pack.description",
-    "min_engine_version": [1, 21, 70],
+    "min_engine_version": [1, 21, 80],
     "uuid": "a2ee01ab-2317-479a-b7b0-22915eedcdfd",
-    "version": [1, 0, 0]
+    "version": [1, 0, 1]
   },
   "modules": [
     {
       "description": "Data Module",
       "type": "data",
       "uuid": "fa3e8480-f7d3-4355-bff8-f644dcad4659",
-      "version": [1, 0, 0]
+      "version": [1, 0, 1]
     },
     {
       "description": "Script API Module",
